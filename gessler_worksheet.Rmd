@@ -1,0 +1,718 @@
+---
+title: "Introduction to webscraping"
+author: Theresa Gessler
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      eval=T)
+```
+# A Introduction
+
+## RMarkdown
+
+I will be using [RStudio](https://www.rstudio.com/) to interact with R, and write our annotated R code using [Markdown](http://rmarkdown.rstudio.com).
+
+**RStudio** is an open-source integrated development environment (IDE) . The main advantage of RStudio with respect to other graphical interfaces, such as R GUI (the default), is that it integrates a powerful built-in text editor as well as other tools for plotting, debugging, and workspace management. You are of course free to use other R interfaces if you want.
+
+**Markdown** is a simple formatting syntax to generate HTML or PDF documents. In combination with R, it will generate a document that includes the comments, the R code, and the output of running such code.
+
+You can embed R code in chunks like this one:
+
+```{r}
+1 + 1
+```
+
+You can run each chunk of code one by one, by highlighting the code and clicking `Run` (or pressing `Ctrl + Enter` in Windows or `command + enter` in OS X). You can see the output of the code in the console right below, inside the RStudio window.
+
+Alternatively, you can generate (or **knit**) an html document with all the code, comment, and output in the entire `.Rmd` file by clicking on `Knit HTML`.
+
+You can also embed plots and graphics, for example:
+
+```{r}
+x <- c(1, 1, 5, 7)
+y <- c(2, 3, 4, 5)
+plot(x, y)
+```
+
+Using R + Markdown has several advantages: it leaves a record of your work, including documentation explaining the steps you made (if you choose to write one). This is helpful to not only keep your own progress organized, but also make your work reproducible and more transparent. You can easily correct errors (just fix them and run the script again), and after you have finished, you can generate a PDF or HTML version of your work.
+
+
+
+
+
+
+
+
+## Basic HTML
+
+
+- **H**yper **T**ext **M**arkup **L**anguage
+    - *markup*: additional description of formatting beyond the content of the text
+- language consists of **HTML tags** to specify character / behaviour of text
+- HTML tags typically consist of a starting and an end tag
+- they surround the text they are formatting
+
+Example:
+
+ `<tagname>Content goes here...</tagname> `
+
+[Example page we will use](http://quotes.toscrape.com/)
+
+Additionally, you can create your own webpage based on the HTML tags we learn about - if you want to get a head start, you can edit the testpage.html file.
+
+### Structure of a webpage
+
+- we are mostly interested in what is inside the **body**, that is, the content of a webpage
+
+
+``` 
+<html> 
+    <head> 
+        <title>Title of your web page</title> 
+    </head> 
+    <body> 
+    HTML web page content 
+    </body> 
+</html> 
+```
+
+### Basic HTML Tags: Headings
+
+`<h1> your heading</h1>`
+
+`<h2> a smaller heading</h2>`
+
+`<h3> an even smaller heading</h3>`
+
+`<h4> an even smaller heading</h4>`
+
+
+
+### Basic HTML Tags: Paragraphs
+
+**Paragraphs** are defined by div or p tags.
+
+Examples:
+
+`<p>this is a paragraph.</p><p>and this is the next.</p>`
+
+<p>this is a paragraph.</p><p>and this is the next.</p>
+
+
+
+`<div>this is a paragraph.</div><div>and this is the next.</div>`
+
+<div>this is a paragraph.</div><div>and this is the next.</div>
+
+---
+
+### Basic HTML Tags: Attributes
+
+- All HTML elements can have attributes
+- Attributes provide additional information about an element
+    - they are included inside the tag
+
+**Usage**
+
+- they are always specified in the starting tag
+    - e.g. `<title attribute="x"> Title </title>`
+- Attributes usually come in name and value pairs
+    - e.g. attributename="attributevalue"
+
+**Links**
+
+- Most common case of attributes: **links**
+    - content turned into a link with `<a>` tag (*anchor*)
+    - link address specified as href attribute (*hyperreference*)
+
+Example:
+
+`This is text <a href="http://quotes.toscrape.com/">with a link</a>.`
+
+This is text <a href="http://quotes.toscrape.com/">with a link.</a>
+
+- other examples of attributes
+    - alt: descriptions, e.g. for images
+        - when image is missing, they will be written out
+        - descriptions for users with visual impairments
+    - styles: formatting
+
+Examples:
+
+
+` <p style="color:red">This is a paragraph.</p> `
+ <p style="color:red">This is a paragraph.</p> 
+
+
+### Basic HTML Tags: Classes
+
+- **Classes** are another special case of attributes that is used for formatting 
+    - usage within tags:
+
+`<div class="container"> This is the text</div> `
+
+<div class="container"> This is the text</div> 
+
+
+**Styling with Classes:** 
+We can define **Styles** and apply them to classes across the whole webpage. This use of classes is very common because it reduces the risk of accidentally formatting something differently.
+
+```
+<style>
+p.error {
+  color: red;   border: 1px solid red;
+} 
+</style>
+<p class="error">Red highlight</p>
+```
+<style>
+p.error {
+  color: red; border: 1px solid red;
+} 
+</style>
+<p class="error">Red highlight</p>
+
+
+
+
+
+
+
+
+
+
+# B Scraping static pages and tables
+
+## 'Parsing HTML'
+
+We start with something very simple: reading web data into R. Imagine, we want to scrape a simple webpage full of quotes. Its address is [http://quotes.toscrape.com/](http://quotes.toscrape.com/). Just have a look at the webpage.
+
+- **First**, we need to load the package we'll use for most of our scraping. It is called *rvest*. Please load it with the `library()` command.
+- **Next**, to read the page into R, we need to tell R its address - we create a character vector named `url` that contains the URL http://quotes.toscrape.com/
+    - You can see if it worked by calling the object `url` or navigating to the page with `browseURL()`.
+- read in (sometimes called: parse) the webpage. To tell R to read the webpage, we can use the function `read_html()` on the url object we just created
+
+
+```{r}
+
+```
+
+
+
+
+
+
+## Extracting elements
+
+The function `read_html()` parses the html code, similar to what our browser does. Still, it gives us the entire document including the HTML commands. Since we do not want the formatting of the webpage, we can use the function html_text() to extract the Webpage text.
+
+Try it out: apply `html_text()` to the parsed webpage.
+
+```{r}
+
+```
+
+Did you find the quotes from before? Admittedly, this still looks very messy. 
+Maybe you are thinking: If only, there would be a way to tell R to just get the text of the quotes! Luckily there is.
+
+### CSS Selectors
+
+The html_nodes() command allows us to select specific 'nodes', that is, elements of the HTML Code. One example would be the HTML tags we learned about and their respective content. You can have a look at the documentation of the html_nodes() command.
+
+```{r}
+?html_nodes
+```
+
+So, we need xpath or CSS selectors. If you have not used HTML before, this might sound complicated. It helps to get a bit into the structure of HTML. [Click on this link to read an introduction to HTML](https://www.w3schools.com/html/default.asp).
+
+Basically, HTML Tags describe the formatting and structure of a webpage. CSS selectors are a type of *grammar* or *pattern-description* that helps us select specific parts of that structure. We will speak more about CSS selectors later in the course, for now, we will just use a tool that helps us determine the correct selectors. But that is not a problem: many people use these tools for scraping and only learn the basics of CSS selectors.
+
+For now, we will focus on two of the most important selectors:
+
+- in their most basic form, selectors work on HTML tags - so if you write the name of a tag (without the brackets), the CSS selector will select all elements with that tag
+    - **Try it out with some of the HTML tags that we learned on the slides.** 
+- a very useful selector is the star-symbol - it just selects *all* tags in the page (so it is a universal selector)
+    - **Try the universal selector on our webpage.**
+
+As I said, we will focus more on gathering specific information but if you just want to parse large amounts of data, the universal selector can be very useful. Now, let's practice!
+
+```{r}
+
+
+```
+
+We will return to CSS Selectors later, but just for reference: For a list of CSS Selectors, check out [this collection](https://www.w3schools.com/cssref/css_selectors.asp). If you want to practice CSS Selectors in a fun way, I recommend playing with the [CSS Diner](https://flukeout.github.io/) where you can learn about different selector structures.
+
+
+### Applying CSS Selectors
+
+Now, we try to use these CSS Selectors with the `html_nodes()` command. As an example, we will try to extract the text of all links in the page. For this, we just tcombine the commands we have learned so far, namely `read_html()`, `html_nodes()` and `html_text()`: 
+**Parse the page, use the CSS selector to select only links from the parsed HTML and assign them to a new object `selected_nodes`. Then, inspect the results by calling the object!**
+
+
+```{r}
+
+
+
+```
+
+This already looks more structured - but we should get rid of the HTML tags. Try applying the `html_text()` command we used before to the nodes which we selected in the last step. This way, we get just the text from the nodes we selected. 
+
+
+```{r}
+
+```
+
+
+
+
+
+
+## Tables
+
+Out of the box, `rvest` converts tables into a list of data frames when calling `html_table()` on a page.
+
+The single most important specification for the commandis the `fill` parameter. If you specify fill as true inside the `html_table()` command, rvest will automatically fill rows with fewer than the maximum number of columns with NAs. This is useful because tables on the internet are often messy - they have inconsistent numbers of cells per row or the format is otherwise messed up. the fill specificaion allows you to deal with that by adding NA values.
+
+Try it out on [wikipedia's list of the tallest buildings](https://en.wikipedia.org/wiki/List_of_tallest_buildings){target="_blank"}. Read the page and then apply the `html_table()` command with and without the specification.
+
+```{r, error=TRUE}
+tables <- read_html("https://en.wikipedia.org/wiki/List_of_tallest_buildings") %>% html_table()
+tables <- read_html("https://en.wikipedia.org/wiki/List_of_tallest_buildings") %>% html_table(fill=T)
+```
+
+If you assign the result to an object, the object will be a list.
+You can extract specific tables from this list by subsetting the list (that is, putting the number of the table you want in two squared brackets). Or, if you want to proceed in a piping-chain, you can use the command `extract2()` from the `magrittr` package, adding the number of the table in brackets (the command name is no typo - `extract` without the 2 works for vectors, `extract2()` works for lists).
+
+**Try both variants for extracting the fourth table from the list of tallest buildings that we scraped.**
+
+
+```{r}
+
+
+
+```
+
+We can also just select specific tables from the beginning - we will return to this in the next session, when we also speak about CSS selectors!
+
+
+### Exercise: Tables
+
+
+Check the [British music charts of 1999](https://en.wikipedia.org/wiki/1999_in_British_music_charts). Scrape the weekly single charts and plot the sales over the course of the week.
+
+If you have time, repeat the same exercise with the [British music charts of 2014]. Is the pattern of sales over the year similar? Overall, how did the total number of sales for the weekly top hit change?
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+# C Selecting parts of pages
+
+## CSS Selectors
+
+### Using SelectorGadget
+
+While understanding HTML helps, we often do not need to engage with the code because there are lots of tools to help us. For example, SelectorGadget is a JavaScript bookmarklet that allows you to interactively figure out what css selector you need to extract parts of the page. If you have not heard of selectorgadget, check its [webpage](https://selectorgadget.com/).
+
+We will try to use SelectorGadget now. [If you have Chrome, you can just install SelectorGadget in your browser](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb). If you have a different browser, drag this link into your [bookmark bar and click on it when needed](javascript:(function(){var%20s=document.createElement('div');s.innerHTML='Loading...';s.style.color='black';s.style.padding='20px';s.style.position='fixed';s.style.zIndex='9999';s.style.fontSize='3.0em';s.style.border='2px%20solid%20black';s.style.right='40px';s.style.top='40px';s.setAttribute('class','selector_gadget_loading');s.style.background='white';document.body.appendChild(s);s=document.createElement('script');s.setAttribute('type','text/javascript');s.setAttribute('src','https://dv0akt2986vzh.cloudfront.net/unstable/lib/selectorgadget.js');document.body.appendChild(s);})();).
+Now, use it to select all quotes on the quotes webpage we have used.
+
+1. Click on the element you want to select. SelectorGadget will make a first guess at what css selector you want and mark all similar elements. It's likely to be a bad guess since it only has one example to learn from, but it's a start. Elements that match the selector will be highlighted in yellow.
+2. Click on elements that shouldn't be selected. They will turn red.  Click on elements that *should* be selected but are not so far. They will turn green.
+3. Iterate until only the elements you want are selected.  SelectorGadget is not perfect and sometimes will not be able to find a useful css selector. Sometimes starting from a different element helps.
+
+
+
+### Applying CSS Selectors
+
+Now, we try to use these CSS Selectors with the `html_nodes()` command. This is a bit of repetition from before but it aids the memory: Parse the page, use the CSS selector to select only the quotes from the parsed HTML and assign them to a new object `selected_nodes`. Then, inspect the results by calling the object!
+
+
+```{r}
+
+
+
+```
+
+This already looks more structured - but we should get rid of the HTML tags. Try applying the `html_text()` command we used before to the nodes which we selected in the last step. This way, we get just the text from the nodes we selected. You can copy the code you used to extract the nodes and continue working on that!
+
+
+```{r}
+
+
+
+```
+
+### Selecting specific tables
+
+Similarly, you can use CSS selectors to select specific tables upfront. This is for example useful when you scrape different pages that all contain the relevant information in a table but the tables are in a different order - think articles about politicians, artists or writers that all contain a list of their work but may also contain other optional tables beforehand.
+
+In this case, you can just use `html_nodes()` to extract the relevant table if the tables share a common CSS selector. 
+
+We practice this by downloading the summary information of [Alexandria Ocasio-Cortez, a member of the House of Representatives](https://en.wikipedia.org/wiki/Alexandria_Ocasio-Cortez) from wikipedia - that is the grey box you usually see [on the right of politicians' pages](https://en.wikipedia.org/wiki/Alexandria_Ocasio-Cortez).
+
+Try the following:
+
+- use SelectorGadget and inspect element to find the selector of the summary table
+- extract the first element from the list you create
+- inspect it
+- if you knit to html, use `kable()` and `kable_styling()` from the `knitr` respectively the `kableExtra` package, to view the table in a better way
+
+
+```{r}
+
+
+```
+
+Now, try the same code with a Republican member of the House of Representatives, [Elise Stefanik](https://en.wikipedia.org/wiki/Elise_Stefanik). Does it work?
+
+```{r}
+
+```
+
+*NB: Since wikipedia uses the same style for almost all tables, this technique is much more useful on other pages.*
+
+
+### Understanding CSS Selectors
+
+If you try using SelectorGadget on different webpages, you will probably notice different patterns in the selectors you get. They follow a grammar that relates to the [Elements of basic HTML we learned](#basic-html).
+
+
+#### Basic selectors
+
+<table border=1 width="100%">
+<tr>
+<td>element</td>
+<td>Type selector</td>
+<td>Matches an element</td>
+</tr>
+<tr>
+<td>.class</td>
+<td>Class selector</td>
+<td>Matches the value of a class attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>#id</td>
+<td>ID selector</td>
+<td>Matches the value of an id attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>*</td>
+<td>universal selector</td>
+<td>Matches everything.</td>
+<td></td>
+<tr>
+<td>&lsqb;attribute&rsqb;</td>
+<td>attribute selector</td>
+<td>Matches elements containing a given attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>&lsqb;attribute=value&rsqb;</td>
+<td>attribute selector</td>
+<td>Matches elements containing a given attribute with a given value</td>
+<td></td>
+</tr>
+
+</table>
+
+#### More complex attribute selectors
+
+<table border=1 width="100%">
+<tr>
+<td>&lsqb;attribute*=value&rsqb;</td>
+<td>Matches elements with an attribute that contains a given value</td>
+<td>a&lsqb;href*="pressrelease"&rsqb;</td>
+</tr>
+<tr>
+<td>&lsqb;attribute^="value"&rsqb;</td>
+<td>Matches elements with an attribute that starts with a given value</td>
+<td>a&lsqb;href*="/press/"&rsqb;</td>
+</tr>
+<tr>
+<td>&lsqb;attribute&dollar;="value"&rsqb;</td>
+<td>Matches elements with an attribute that ends with a given value</td>
+<td>&lsqb;href$=".pdf"&rsqb;</td>
+</tr>
+</table>
+
+#### Combining CSS Selectors
+
+There are several ways to combine CSS Selectors:
+
+<table border=1 width="100%">
+<tr><td>element,element 	</td>
+
+<td>Selects all &lt;>div&gt; elements and all &lt;>p&gt; elements</td> <td>div, p 	</td></tr>
+<tr><td>element element 	</td>
+
+<td>Selects all &lt;>p&gt; elements inside &lt;>div&gt; elements</td> <td>div p 	</td></tr>
+<tr><td>element>element 	</td>
+
+<td>Selects all &lt;>p&gt; elements where the parent is a &lt;>div&gt; element</td> <td>div > p 	</td></tr>
+<tr><td>element+element 	</td>
+
+<td>Selects all &lt;>p&gt; elements that are placed immediately after &lt;>div&gt; elements</td><td>div + p 	</td> </tr>
+<tr><td>element1~element2 	</td>
+
+<td>Selects every &lt;ul&gt; element that are preceded by a &lt;p&gt; element</td> <td>p ~ ul 	</td></tr>
+</table>
+
+If you want to practice CSS Selectors, the [w3schools](https://www.w3schools.com/cssref/trysel.asp) has a test playground where you can try out lots of more complex selectors and read up on them.
+
+Also, if you want to practice the logic of CSS Selectors in a fun way, to play with the [CSS Diner](https://flukeout.github.io/) where you can learn about different selector structures.
+
+
+### Exercise: CSS Selectors
+
+If you want to practice with a real world example, try to select the following things from this hypothetical webpage of a scientific article: 
+
+- the title
+- the author
+- the whole ordered list
+- each bullet point
+- only bullet points inside the unordered list
+- only bullet points inside the ordered list
+- the third bullet point of the ordered list
+
+It contains some HTML Tags we don't know yet:  an ordered list (*ol*) and an unordered list (*ul*) with several elements (*li*)
+
+
+
+```{r}
+webpage<-'<html>
+<body>
+<h1>Computational Research in the Post-API Age</h1>
+<div class="author">Deen Freelon</div>
+<div>Keywords:
+<ul><li>API</li>
+<li>computational</li>
+<li>Facebook</li>
+</ul>
+</div>
+<div class="text">
+Three pieces of advice on whether and how to scrape from Dan Freelon
+</div>
+
+<ol class="advice">
+<li id="one"> use authorized methods whenever possible </li>
+<li id="two"> do not confuse terms of service compliance with data protection </li>
+<li id="three"> understand the risks of violating terms of service </li>
+</ol>
+
+
+</body>
+</html>'
+
+```
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+# D Extracting links & automation
+
+
+## Hyperlinks
+
+So, you have learned how to use some of the basic functions of the `rvest` package: `read_html()`, `html_nodes()` and `html_text()`.
+But most of the time, we are not just interested in a single page but multiple pages from the same domain, e.g. all newspaper reports by a specific newspaper or all speeches by a politician. So we need another step: We have to learn to follow links without actually opening the browser and clicking on the link and copying the new path.
+
+Now, we will learn two things:
+
+- to extract links from webpages
+- ways to automate following these links.
+
+You will see that in the end, webscraping is a function of programming in R. The more you learn to use loops, functions and apply commands, the easier the scraping will be. In the end, scraping is just a small step in the whole process of getting data.
+
+### Extracting links from webpages
+
+To extract links, we need another command. Remember we said hyperlinks are an *attribute* of the text? This means, they are not directly visible on the page but bare an attribute of the elements we see. Because of that, the `rvest` command to get these links is called `html_attr()`. We can use it to extract different types of attributes, so you will have to tell rvest the attribute that we are interested in is a link. Remember what links looked like?
+
+`This is text <a href="http://quotes.toscrape.com/">with a link</a>.`
+
+*href* stands for hyperreference and signifies the webpage the link leads to. You can specify `name="href"` inside the `html_attr()` command to extract the link. For example:
+
+`html_attr(parsed_page,"href")`
+
+However, this will only work on individual HTML tags not on entire pages (since the link is an attribute of the specific tag, not the page), so we will use `html_nodes()` again. Please try three things on the [quotes2scrape webpage](http://quotes.toscrape.com/):
+
+- first, you can extract potential links from all tags by using the universal selector (`html_nodes("*")`)
+- second, extract all links from a-tags - is there any difference?
+- look up the selector of the tags again and extract the links to all tags
+
+
+```{r}
+
+
+```
+
+
+Do you notice something about the links? They are missing a part. That is because they are relative links within the directory structure of the webpage. To 'repair' them, we need to add the **base url** of the webpage. This is typically just the url of the webpage we originally scraped from.
+
+For adding the base url, we can use the function `paste()` that pastes together two character vectors. I recommend using `paste0()` which pastes the vectors together without inserting separators like white space between the vectors. If you have never used paste, try it out:
+
+```{r}
+paste("a","b")
+paste0("a","b")
+```
+
+Now, completing the paths of the URLs we scraped should not be a problem for you. Re-use the code you used to extract the links of the tags, assign it to an object called `url` and add the base url (http://quotes.toscrape.com/) in front of it.
+
+*Watch out for the slashes between the base url and the address of your page - having none or too many slashes is a typical problem!*
+
+
+```{r}
+
+
+```
+
+
+
+
+
+
+### Automating the following of links
+
+As I mentioned, in the end, webscraping is a function of programming. So once we collected the links we are interested in and learned the basic commands of rvest, there are multiple ways to proceed:
+
+- you can use a `for()`-loop that loops over the vector of links and scrapes each of them
+- You can write a function that scrapes the content of all the links
+    - you can put the function into your loop
+    - you can `apply()` the function to a vector - this is the fastest variant but takes some getting used to
+
+For now, we will start with the easiest variant and just create a `for`-loop. Later, we will also use `apply()` but there are good reasons why you will often return to simple loops.
+
+I recommend to first write down a few lines of code as if you would just want to scrape the first link:
+
+- extract the links to the pages for each quote
+- parse the first of the quote pages
+- extract the nodes of the quotes on this page
+- extract the text of the first of these nodes using `html_node()` (for now, we extract just the first to make our life a bit easier)
+
+This is also a good exercise to see to which extent you remember what we have learned so far. You can then think about re-writing the code in the next step.
+
+
+```{r}
+
+
+```
+
+Now, we to analyze the code: which part will vary when you try to repeat this multiple times?
+If you have figured this out, it is time to try it!
+
+### Repetition: `for`-loops
+
+In R, we use loops whenever we need to run the same chunk of code across different units. For example, we may use a loop whenever we have multiple Twitter accounts and we want to run sentiment analysis for tweets posted by each of them.
+
+`for`-loops are probably the most common type of loop and are easily implemented in R
+
+```{r}
+for (i in 1:10){
+	print(i)
+}
+```
+
+Note the structure: 
+
+
+`for (i in VECTOR){ do something with i }`
+
+
+In each iteration, i takes a different value of the vector; `i` can be named anything!
+
+```{r}
+for (number in 1:10){
+	print(number)
+}
+```
+
+The nice feature of loops is that it can use values from the  previous iteration. For instance, we can get the first 40 terms in the Fibonacci sequence using a for loop.
+
+```{r}
+fib <- c(0, 1, rep(NA, 38)) 
+for(i in 3:40) {
+  fib[i] <- fib[i-1] + fib[i-2]
+}
+fib
+```
+
+Note that here we created an empty vector to store the output of each iteration. A simpler example:
+
+```{r}
+values <- rep(NA, 10)
+for (i in 1:10){
+	values[i] <- i
+}
+values
+```
+
+### Using `for`-loops
+
+
+Now, try to write the scraping code we had into a loop. We need to find a way to *loop* over our list of urls, parsing one after the other and then reading out the quotes.
+
+```{r}
+
+
+
+
+```
+
+The more you learn to use loops (as well as functions and apply commands for more advanced use), the easier the scraping will be. In the end, scraping is just a small step in the whole process of getting data so if you improve your programming skills in R - which is rewarding anyway - you will also get better at scraping in R.
+
+
+
+### The logic of scraping multiple pages
+
+Generally, we need to find a logic behind the links to pages - whether we follow the links from a first page or whether we find a regularity in the addresses of pages.
+
+**Try to find a logic in the following pages:**
+
+- <a href="https://en.wikipedia.org/wiki/List_of_members_of_the_Swiss_Council_of_States_(2007%E2%80%9311)">List of members of Swiss Council of States on wikipedia</a>
+- [White House Briefing Statements](https://www.whitehouse.gov/briefings-statements/)
+- [U.S. Presidential speeches](https://www.presidency.ucsb.edu/advanced-search?field-keywords=&field-keywords2=&field-keywords3=&from%5Bdate%5D=&to%5Bdate%5D=&person2=200301&items_per_page=10)
+- [blog entries of Italian Cinque Stelle Party](https://www.ilblogdellestelle.it/2005/02)
+
+### Exercise: Following links with loops
+
+When we have found a logic, we can automate our visits to all pages included - similar to what we did with the pages for each tag.
+
+For a simple example, please collect the links to the pages of [**all current members of the United States House of Representatives**](https://en.wikipedia.org/wiki/List_of_current_members_of_the_United_States_House_of_Representatives) and scrape the text of the articles of the first five members. 
+
+Of course, we could do this for all members, however, as responsible researchers, we try to limit the traffic we cause to wikipedia!
+
+```{r}
+
+
+
+```
+
+If you want, you can also try to scrape some of the pages which we discussed as index pages!
+
+
