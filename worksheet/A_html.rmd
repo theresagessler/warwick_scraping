@@ -1,0 +1,184 @@
+---
+title: "Introduction to webscraping"
+subtitle: "Part 1"
+author: Theresa Gessler
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      eval=T)
+```
+
+# A Introduction
+
+## RMarkdown
+
+I will be using [RStudio](https://www.rstudio.com/) to interact with R, and write our annotated R code using [Markdown](http://rmarkdown.rstudio.com).
+
+**RStudio** is an open-source integrated development environment (IDE) . The main advantage of RStudio with respect to other graphical interfaces, such as R GUI (the default), is that it integrates a powerful built-in text editor as well as other tools for plotting, debugging, and workspace management. You are of course free to use other R interfaces if you want.
+
+**Markdown** is a simple formatting syntax to generate HTML or PDF documents. In combination with R, it will generate a document that includes the comments, the R code, and the output of running such code.
+
+You can embed R code in chunks like this one:
+
+```{r}
+1 + 1
+```
+
+You can run each chunk of code one by one, by highlighting the code and clicking `Run` (or pressing `Ctrl + Enter` in Windows or `command + enter` in OS X). You can see the output of the code in the console right below, inside the RStudio window.
+
+Alternatively, you can generate (or **knit**) an html document with all the code, comment, and output in the entire `.Rmd` file by clicking on `Knit HTML`.
+
+You can also embed plots and graphics, for example:
+
+```{r}
+x <- c(1, 1, 5, 7)
+y <- c(2, 3, 4, 5)
+plot(x, y)
+```
+
+Using R + Markdown has several advantages: it leaves a record of your work, including documentation explaining the steps you made (if you choose to write one). This is helpful to not only keep your own progress organized, but also make your work reproducible and more transparent. You can easily correct errors (just fix them and run the script again), and after you have finished, you can generate a PDF or HTML version of your work.
+
+
+
+
+
+
+
+
+## Basic HTML
+
+
+- **H**yper **T**ext **M**arkup **L**anguage
+    - *markup*: additional description of formatting beyond the content of the text
+- language consists of **HTML tags** to specify character / behaviour of text
+- HTML tags typically consist of a starting and an end tag
+- they surround the text they are formatting
+
+Example:
+
+ `<tagname>Content goes here...</tagname> `
+
+[Example page we will use](http://quotes.toscrape.com/)
+
+Additionally, you can create your own webpage based on the HTML tags we learn about - if you want to get a head start, you can edit the testpage.html file.
+
+### Structure of a webpage
+
+- we are mostly interested in what is inside the **body**, that is, the content of a webpage
+
+
+``` 
+<html> 
+    <head> 
+        <title>Title of your web page</title> 
+    </head> 
+    <body> 
+    HTML web page content 
+    </body> 
+</html> 
+```
+
+### Basic HTML Tags: Headings
+
+`<h1> your heading</h1>`
+
+`<h2> a smaller heading</h2>`
+
+`<h3> an even smaller heading</h3>`
+
+`<h4> an even smaller heading</h4>`
+
+
+
+### Basic HTML Tags: Paragraphs
+
+**Paragraphs** are defined by div or p tags.
+
+Examples:
+
+`<p>this is a paragraph.</p><p>and this is the next.</p>`
+
+<p>this is a paragraph.</p><p>and this is the next.</p>
+
+
+
+`<div>this is a paragraph.</div><div>and this is the next.</div>`
+
+<div>this is a paragraph.</div><div>and this is the next.</div>
+
+---
+
+### Basic HTML Tags: Attributes
+
+- All HTML elements can have attributes
+- Attributes provide additional information about an element
+    - they are included inside the tag
+
+**Usage**
+
+- they are always specified in the starting tag
+    - e.g. `<title attribute="x"> Title </title>`
+- Attributes usually come in name and value pairs
+    - e.g. attributename="attributevalue"
+
+**Links**
+
+- Most common case of attributes: **links**
+    - content turned into a link with `<a>` tag (*anchor*)
+    - link address specified as href attribute (*hyperreference*)
+
+Example:
+
+`This is text <a href="http://quotes.toscrape.com/">with a link</a>.`
+
+This is text <a href="http://quotes.toscrape.com/">with a link.</a>
+
+- other examples of attributes
+    - alt: descriptions, e.g. for images
+        - when image is missing, they will be written out
+        - descriptions for users with visual impairments
+    - styles: formatting
+
+Examples:
+
+
+` <p style="color:red">This is a paragraph.</p> `
+ <p style="color:red">This is a paragraph.</p> 
+
+
+### Basic HTML Tags: Classes
+
+- **Classes** are another special case of attributes that is used for formatting 
+    - usage within tags:
+
+`<div class="container"> This is the text</div> `
+
+<div class="container"> This is the text</div> 
+
+
+**Styling with Classes:** 
+We can define **Styles** and apply them to classes across the whole webpage. This use of classes is very common because it reduces the risk of accidentally formatting something differently.
+
+```
+<style>
+p.error {
+  color: red;   border: 1px solid red;
+} 
+</style>
+<p class="error">Red highlight</p>
+```
+<style>
+p.error {
+  color: red; border: 1px solid red;
+} 
+</style>
+<p class="error">Red highlight</p>
+
+
