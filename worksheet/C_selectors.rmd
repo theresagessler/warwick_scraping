@@ -1,0 +1,245 @@
+---
+title: "Introduction to webscraping"
+subtitle: "Part 3"
+author: Theresa Gessler
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      eval=T)
+
+library(dplyr)
+library(magrittr)
+```
+
+
+
+# C Selecting parts of pages
+
+## CSS Selectors
+
+### Using SelectorGadget
+
+While understanding HTML helps, we often do not need to engage with the code because there are lots of tools to help us. For example, SelectorGadget is a JavaScript bookmarklet that allows you to interactively figure out what css selector you need to extract parts of the page. If you have not heard of selectorgadget, check its [webpage](https://selectorgadget.com/).
+
+We will try to use SelectorGadget now. [If you have Chrome, you can just install SelectorGadget in your browser](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb). If you have a different browser, drag this link into your [bookmark bar and click on it when needed](javascript:(function(){var%20s=document.createElement('div');s.innerHTML='Loading...';s.style.color='black';s.style.padding='20px';s.style.position='fixed';s.style.zIndex='9999';s.style.fontSize='3.0em';s.style.border='2px%20solid%20black';s.style.right='40px';s.style.top='40px';s.setAttribute('class','selector_gadget_loading');s.style.background='white';document.body.appendChild(s);s=document.createElement('script');s.setAttribute('type','text/javascript');s.setAttribute('src','https://dv0akt2986vzh.cloudfront.net/unstable/lib/selectorgadget.js');document.body.appendChild(s);})();).
+Now, use it to select all quotes on the quotes webpage we have used.
+
+1. Click on the element you want to select. SelectorGadget will make a first guess at what css selector you want and mark all similar elements. It's likely to be a bad guess since it only has one example to learn from, but it's a start. Elements that match the selector will be highlighted in yellow.
+2. Click on elements that shouldn't be selected. They will turn red.  Click on elements that *should* be selected but are not so far. They will turn green.
+3. Iterate until only the elements you want are selected.  SelectorGadget is not perfect and sometimes will not be able to find a useful css selector. Sometimes starting from a different element helps.
+
+
+
+### Applying CSS Selectors
+
+Now, we try to use these CSS Selectors with the `html_nodes()` command. This is a bit of repetition from before but it aids the memory: Parse the page, use the CSS selector to select only the quotes from the parsed HTML and assign them to a new object `selected_nodes`. Then, inspect the results by calling the object!
+
+```{r}
+library(rvest)
+url <- "http://quotes.toscrape.com/"
+#browseURL(url)
+parsed <- read_html(url)
+```
+
+```{r}
+selected_nodes<-html_nodes(parsed,".text")
+selected_nodes
+```
+
+This already looks more structured - but we should get rid of the HTML tags. Try applying the `html_text()` command we used before to the nodes which we selected in the last step. This way, we get just the text from the nodes we selected. You can copy the code you used to extract the nodes and continue working on that!
+
+
+```{r}
+selected_nodes<-html_nodes(parsed,".text")
+selected_nodes %>% html_text()
+```
+
+### Selecting specific tables
+
+Similarly, you can use CSS selectors to select specific tables upfront. This is for example useful when you scrape different pages that all contain the relevant information in a table but the tables are in a different order - think articles about politicians, artists or writers that all contain a list of their work but may also contain other optional tables beforehand.
+
+In this case, you can just use `html_nodes()` to extract the relevant table if the tables share a common CSS selector. 
+
+We practice this by downloading the summary information of [Alexandria Ocasio-Cortez, a member of the House of Representatives](https://en.wikipedia.org/wiki/Alexandria_Ocasio-Cortez) from wikipedia - that is the grey box you usually see [on the right of politicians' pages](https://en.wikipedia.org/wiki/Alexandria_Ocasio-Cortez).
+
+Try the following:
+
+- use SelectorGadget and inspect element to find the selector of the summary table
+- extract the first element from the list you create
+- inspect it
+- if you knit to html, use `kable()` and `kable_styling()` from the `knitr` respectively the `kableExtra` package, to view the table in a better way
+
+
+```{r}
+library(knitr)
+library(kableExtra)
+read_html("https://en.wikipedia.org/wiki/Alexandria_Ocasio-Cortez") %>% 
+html_nodes(".infobox.vcard") %>% 
+html_table() %>% 
+extract2(1) %>% kable() %>% kable_styling()
+
+```
+
+Now, try the same code with a Republican member of the House of Representatives, [Elise Stefanik](https://en.wikipedia.org/wiki/Elise_Stefanik). Does it work?
+
+```{r}
+read_html("https://en.wikipedia.org/wiki/Elise_Stefanik") %>% 
+html_nodes(".infobox.vcard") %>% 
+html_table() %>% 
+extract2(1) %>% kable() %>% kable_styling()
+```
+
+*NB: Since wikipedia uses the same style for almost all tables, this technique is much more useful on other pages.*
+
+
+### Understanding CSS Selectors
+
+If you try using SelectorGadget on different webpages, you will probably notice different patterns in the selectors you get. They follow a grammar that relates to the [Elements of basic HTML we learned](#basic-html).
+
+
+#### Basic selectors
+
+<table border=1 width="100%">
+<tr>
+<td>element</td>
+<td>Type selector</td>
+<td>Matches an element</td>
+</tr>
+<tr>
+<td>.class</td>
+<td>Class selector</td>
+<td>Matches the value of a class attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>#id</td>
+<td>ID selector</td>
+<td>Matches the value of an id attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>*</td>
+<td>universal selector</td>
+<td>Matches everything.</td>
+<td></td>
+<tr>
+<td>&lsqb;attribute&rsqb;</td>
+<td>attribute selector</td>
+<td>Matches elements containing a given attribute</td>
+<td></td>
+</tr>
+<tr>
+<td>&lsqb;attribute=value&rsqb;</td>
+<td>attribute selector</td>
+<td>Matches elements containing a given attribute with a given value</td>
+<td></td>
+</tr>
+
+</table>
+
+#### More complex attribute selectors
+
+<table border=1 width="100%">
+<tr>
+<td>&lsqb;attribute*=value&rsqb;</td>
+<td>Matches elements with an attribute that contains a given value</td>
+<td>a&lsqb;href*="pressrelease"&rsqb;</td>
+</tr>
+<tr>
+<td>&lsqb;attribute^="value"&rsqb;</td>
+<td>Matches elements with an attribute that starts with a given value</td>
+<td>a&lsqb;href*="/press/"&rsqb;</td>
+</tr>
+<tr>
+<td>&lsqb;attribute&dollar;="value"&rsqb;</td>
+<td>Matches elements with an attribute that ends with a given value</td>
+<td>&lsqb;href$=".pdf"&rsqb;</td>
+</tr>
+</table>
+
+#### Combining CSS Selectors
+
+There are several ways to combine CSS Selectors:
+
+<table border=1 width="100%">
+<tr><td>element,element 	</td>
+
+<td>Selects all &lt;>div&gt; elements and all &lt;>p&gt; elements</td> <td>div, p 	</td></tr>
+<tr><td>element element 	</td>
+
+<td>Selects all &lt;>p&gt; elements inside &lt;>div&gt; elements</td> <td>div p 	</td></tr>
+<tr><td>element>element 	</td>
+
+<td>Selects all &lt;>p&gt; elements where the parent is a &lt;>div&gt; element</td> <td>div > p 	</td></tr>
+<tr><td>element+element 	</td>
+
+<td>Selects all &lt;>p&gt; elements that are placed immediately after &lt;>div&gt; elements</td><td>div + p 	</td> </tr>
+<tr><td>element1~element2 	</td>
+
+<td>Selects every &lt;ul&gt; element that are preceded by a &lt;p&gt; element</td> <td>p ~ ul 	</td></tr>
+</table>
+
+If you want to practice CSS Selectors, the [w3schools](https://www.w3schools.com/cssref/trysel.asp) has a test playground where you can try out lots of more complex selectors and read up on them.
+
+Also, if you want to practice the logic of CSS Selectors in a fun way, to play with the [CSS Diner](https://flukeout.github.io/) where you can learn about different selector structures.
+
+
+### Exercise: CSS Selectors
+
+If you want to practice with a real world example, try to select the following things from this hypothetical webpage of a scientific article: 
+
+- the title
+- the author
+- the whole ordered list
+- each bullet point
+- only bullet points inside the unordered list
+- only bullet points inside the ordered list
+- the third bullet point of the ordered list
+
+It contains some HTML Tags we don't know yet:  an ordered list (*ol*) and an unordered list (*ul*) with several elements (*li*)
+
+
+
+```{r}
+webpage<-'<html>
+<body>
+<h1>Computational Research in the Post-API Age</h1>
+<div class="author">Deen Freelon</div>
+<div>Keywords:
+<ul><li>API</li>
+<li>computational</li>
+<li>Facebook</li>
+</ul>
+</div>
+<div class="text">
+Three pieces of advice on whether and how to scrape from Dan Freelon
+</div>
+
+<ol class="advice">
+<li id="one"> use authorized methods whenever possible </li>
+<li id="two"> do not confuse terms of service compliance with data protection </li>
+<li id="three"> understand the risks of violating terms of service </li>
+</ol>
+
+
+</body>
+</html>'
+
+```
+```{r}
+parsed <- read_html(webpage)
+html_nodes(parsed,"h1")
+html_nodes(parsed,".author")
+html_nodes(parsed,"ol")
+html_nodes(parsed,"li")
+html_nodes(parsed,"ul li")
+html_nodes(parsed,"ol li")
+html_nodes(parsed,"#three")
+```
