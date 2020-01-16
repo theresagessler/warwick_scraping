@@ -1,0 +1,173 @@
+---
+title: "Introduction to webscraping"
+subtitle: "Part 2"
+author: Theresa Gessler
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      eval=T)
+```
+
+
+
+
+# B Scraping static pages and tables
+
+## 'Parsing HTML'
+
+We start with something very simple: reading web data into R. Imagine, we want to scrape a simple webpage full of quotes. Its address is [http://quotes.toscrape.com/](http://quotes.toscrape.com/). Just have a look at the webpage.
+
+- **First**, we need to load the package we'll use for most of our scraping. It is called *rvest*. Please load it with the `library()` command.
+- **Next**, to read the page into R, we need to tell R its address - we create a character vector named `url` that contains the URL http://quotes.toscrape.com/
+    - You can see if it worked by calling the object `url` or navigating to the page with `browseURL()`.
+- read in (sometimes called: parse) the webpage. To tell R to read the webpage, we can use the function `read_html()` on the url object we just created
+
+
+```{r}
+library(rvest)
+url <- "http://quotes.toscrape.com/"
+#browseURL(url)
+parsed <- read_html(url)
+```
+
+
+
+
+
+
+## Extracting elements
+
+The function `read_html()` parses the html code, similar to what our browser does. Still, it gives us the entire document including the HTML commands. Since we do not want the formatting of the webpage, we can use the function html_text() to extract the Webpage text.
+
+Try it out: apply `html_text()` to the parsed webpage.
+
+```{r}
+html_text(parsed)
+```
+
+Did you find the quotes from before? Admittedly, this still looks very messy. 
+Maybe you are thinking: If only, there would be a way to tell R to just get the text of the quotes! Luckily there is.
+
+### CSS Selectors
+
+The html_nodes() command allows us to select specific 'nodes', that is, elements of the HTML Code. One example would be the HTML tags we learned about and their respective content. You can have a look at the documentation of the html_nodes() command.
+
+```{r}
+library(rvest)
+#?html_nodes
+```
+
+So, we need xpath or CSS selectors. If you have not used HTML before, this might sound complicated. It helps to get a bit into the structure of HTML. [Click on this link to read an introduction to HTML](https://www.w3schools.com/html/default.asp).
+
+Basically, HTML Tags describe the formatting and structure of a webpage. CSS selectors are a type of *grammar* or *pattern-description* that helps us select specific parts of that structure. We will speak more about CSS selectors later in the course, for now, we will just use a tool that helps us determine the correct selectors. But that is not a problem: many people use these tools for scraping and only learn the basics of CSS selectors.
+
+For now, we will focus on two of the most important selectors:
+
+- in their most basic form, selectors work on HTML tags - so if you write the name of a tag (without the brackets), the CSS selector will select all elements with that tag
+    - **Try it out with some of the HTML tags that we learned on the slides.** 
+- a very useful selector is the star-symbol - it just selects *all* tags in the page (so it is a universal selector)
+    - **Try the universal selector on our webpage.**
+
+As I said, we will focus more on gathering specific information but if you just want to parse large amounts of data, the universal selector can be very useful. Now, let's practice!
+
+```{r}
+html_nodes(parsed,"a")
+html_nodes(parsed,"h1")
+html_nodes(parsed,"*")
+```
+
+We will return to CSS Selectors later, but just for reference: For a list of CSS Selectors, check out [this collection](https://www.w3schools.com/cssref/css_selectors.asp). If you want to practice CSS Selectors in a fun way, I recommend playing with the [CSS Diner](https://flukeout.github.io/) where you can learn about different selector structures.
+
+
+### Applying CSS Selectors
+
+Now, we try to use these CSS Selectors with the `html_nodes()` command. As an example, we will try to extract the text of all links in the page. For this, we just tcombine the commands we have learned so far, namely `read_html()`, `html_nodes()` and `html_text()`: 
+**Parse the page, use the CSS selector to select only links from the parsed HTML and assign them to a new object `selected_nodes`. Then, inspect the results by calling the object!**
+
+
+```{r}
+url <- "http://quotes.toscrape.com/"
+parsed <- read_html(url)
+selected_nodes<-html_nodes(parsed,"a")
+selected_nodes
+```
+
+This already looks more structured - but we should get rid of the HTML tags. Try applying the `html_text()` command we used before to the nodes which we selected in the last step. This way, we get just the text from the nodes we selected. 
+
+
+```{r}
+html_text(selected_nodes)
+```
+
+
+
+
+
+
+## Tables
+
+Out of the box, `rvest` converts tables into a list of data frames when calling `html_table()` on a page.
+
+The single most important specification for the commandis the `fill` parameter. If you specify fill as true inside the `html_table()` command, rvest will automatically fill rows with fewer than the maximum number of columns with NAs. This is useful because tables on the internet are often messy - they have inconsistent numbers of cells per row or the format is otherwise messed up. the fill specificaion allows you to deal with that by adding NA values.
+
+Try it out on [wikipedia's list of the tallest buildings](https://en.wikipedia.org/wiki/List_of_tallest_buildings){target="_blank"}. Read the page and then apply the `html_table()` command with and without the specification.
+
+```{r, error=TRUE}
+tables <- read_html("https://en.wikipedia.org/wiki/List_of_tallest_buildings") %>% html_table()
+tables <- read_html("https://en.wikipedia.org/wiki/List_of_tallest_buildings") %>% html_table(fill=T)
+```
+
+If you assign the result to an object, the object will be a list.
+You can extract specific tables from this list by subsetting the list (that is, putting the number of the table you want in two squared brackets). Or, if you want to proceed in a piping-chain, you can use the command `extract2()` from the `magrittr` package, adding the number of the table in brackets (the command name is no typo - `extract` without the 2 works for vectors, `extract2()` works for lists).
+
+**Try both variants for extracting the fourth table from the list of tallest buildings that we scraped.**
+
+
+```{r}
+library(magrittr)
+library(dplyr)
+tables<-read_html("https://en.wikipedia.org/wiki/List_of_tallest_buildings") %>% html_table(fill=T)
+tables[[4]]
+tables %>% extract2(4)
+```
+
+We can also just select specific tables from the beginning - we will return to this in the next session, when we also speak about CSS selectors!
+
+
+### Exercise: Tables
+
+
+Check the [British music charts of 1999](https://en.wikipedia.org/wiki/1999_in_British_music_charts). Scrape the weekly single charts and plot the sales over the course of the week.
+
+If you have time, repeat the same exercise with the [British music charts of 2014]. Is the pattern of sales over the year similar? Overall, how did the total number of sales for the weekly top hit change?
+
+```{r}
+chartspage <- read_html("https://en.wikipedia.org/wiki/1999_in_British_music_charts")
+singles <- html_table(chartspage,fill=T) %>% extract2(2)
+singles <- singles %>% 
+    mutate(sales=stringr::str_replace(Sales,",","")) %>% 
+    mutate(sales=as.numeric(sales)) %>%
+    mutate(week=seq(1,nrow(singles)))
+plot(y=singles$sales,x=singles$week)
+sum(singles$sales)
+
+chartspage_2014 <- read_html("https://en.wikipedia.org/wiki/2014_in_British_music_charts")
+singles_2014 <- html_table(chartspage_2014,fill=T) %>% extract2(5)
+singles_2014 <- singles_2014 %>% 
+    mutate(sales=stringr::str_replace(`Sales /chart sales`,",","")) %>% 
+    mutate(sales=as.numeric(sales)) %>%
+    mutate(week=seq(1,nrow(singles)))
+plot(y=singles_2014$sales,x=singles_2014$week)
+
+sum(singles$sales)
+sum(singles_2014$sales)
+```
+
+
